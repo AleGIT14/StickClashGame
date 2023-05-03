@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
+
 public class loginScript : MonoBehaviour
 {
 
@@ -51,6 +53,8 @@ public class loginScript : MonoBehaviour
                 Debug.Log("Login Correcto");
                 string msg = "Login correcto";
                 cambiarTexto(errorTextObj, msg);
+
+                SceneManager.LoadScene("PlayerMenu");
             }
             else
             {
