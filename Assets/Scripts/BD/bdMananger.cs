@@ -31,11 +31,8 @@ public class bdMananger : MonoBehaviour
         string Query = String.Format("SELECT * FROM users");
         bool flag = false;
 
-
         try
         {
-            Debug.Log("va");
-
             string connString = connectionScript.GetComponent<ConnectionScript>().getConexion();
             conn = new MySqlConnection(connString);
 
@@ -47,17 +44,15 @@ public class bdMananger : MonoBehaviour
 
                 while (res.Read())
                 {
-                    Debug.Log(res["username"]);
-                    Debug.Log(res["pass"]);
-
-                    if (res["username"].Equals(user) && res["pass"].Equals(pass))
+                    if (String.Equals(user, res["username"]) && String.Equals(pass, res["password"]))
                     {
                         flag = true;
-
+                        Debug.Log("Si coincide");
                         break;
                     }
                     else
                     {
+                        Debug.Log("No coincide");
                         flag = false;
                     }
                 }

@@ -21,10 +21,16 @@ public class ConnectionScript : MonoBehaviour
 
     private MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder
     {
+        Server = "localhost",
+        UserID = "root",
+        Database = "stick_clash"
+
+        /*
         Server = "sql8.freemysqlhosting.net",
         UserID = "sql8614216",
         Password = "6q27zNzm2x",
         Database = "sql8614216"
+        */
     };
 
     public string getConexion()

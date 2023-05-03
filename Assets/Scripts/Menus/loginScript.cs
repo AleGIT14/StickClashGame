@@ -13,43 +13,59 @@ public class loginScript : MonoBehaviour
     [SerializeField] GameObject scriptsObj;
 
     public Button btn;
+    private GameObject errorTextObj;
+    private string errorText;
 
     private string user;
     private string pass;
 
     private bdMananger objBd;
 
+
     void Start()
     {
-
-        //Debug.Log(a.GetType());
         btn.onClick.AddListener(checkUser);
-        
+        errorTextObj = GameObject.FindWithTag("errortext");
     }
 
     void Update()
     {
-       
     }
 
-    void checkUser()
+    private void checkUser()
     {
 
         //Asignar en
-        user = userObj.GetComponent<TMP_Text>().text;
-        pass = passObj.GetComponent<TMP_Text>().text;
+        user = userObj.GetComponent<TMP_InputField>().text;
+        pass = passObj.GetComponent<TMP_InputField>().text;
 
-        Debug.Log("hola");
-        Debug.Log(user);
-        Debug.Log(pass);
-        if(scriptsObj.GetComponent<bdMananger>().ComprobarUsuario(user, pass))
+        if (user == "" || pass == "")
         {
-            Debug.Log("Login Correcto");
-        } else
-        {
-            Debug.Log("caca db");
+            string msg = "Debe rellenar todos los campos";
+            cambiarTexto(errorTextObj, msg);
         }
+        else
+        {
+            if (scriptsObj.GetComponent<bdMananger>().ComprobarUsuario(user, pass))
+            {
+                Debug.Log("Login Correcto");
+                string msg = "Login correcto";
+                cambiarTexto(errorTextObj, msg);
+            }
+            else
+            {
+                Debug.Log("error de acceso");
+                string msg = "Error de acceso, debe indicar un usuario válido";
+                cambiarTexto(errorTextObj, msg);
+
+            }
+        }
+
+        
     }
 
-    
+    private void cambiarTexto(GameObject go, string msg)
+    {
+        go.GetComponent<TMP_Text>().text = msg;
+    }
 }
