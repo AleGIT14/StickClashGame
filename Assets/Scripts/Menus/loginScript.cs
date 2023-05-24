@@ -14,19 +14,22 @@ public class loginScript : MonoBehaviour
 
     [SerializeField] GameObject scriptsObj;
 
-    public Button btn;
+    private Button btnLogin;
+    [SerializeField] Button btnRegister;
+
     private GameObject errorTextObj;
     private string errorText;
 
     private string user;
     private string pass;
 
-    private bdMananger objBd;
-
 
     void Start()
     {
-        btn.onClick.AddListener(checkUser);
+
+        btnLogin = this.GetComponent<Button>();
+        btnLogin.onClick.AddListener(checkUser);
+
         errorTextObj = GameObject.FindWithTag("errortext");
     }
 
@@ -36,6 +39,8 @@ public class loginScript : MonoBehaviour
 
     private void checkUser()
     {
+
+        cambiarTexto(errorTextObj, "");
 
         //Asignar en
         user = userObj.GetComponent<TMP_InputField>().text;
@@ -48,18 +53,29 @@ public class loginScript : MonoBehaviour
         }
         else
         {
-            if (scriptsObj.GetComponent<bdMananger>().ComprobarUsuario(user, pass))
+            int consultaRes = scriptsObj.GetComponent<bdMananger>().comprobarUsuario(user, pass);
+
+            if (consultaRes == 1)
             {
                 Debug.Log("Login Correcto");
-                string msg = "Login correcto";
+                string msg = "Login correcto, bienvenido " + user;
                 cambiarTexto(errorTextObj, msg);
 
-                SceneManager.LoadScene("PlayerMenu");
+                StartCoroutine(cargarEscena("PlayerMenu"));
+            } 
+            else if (consultaRes == 2)
+            {
+                Debug.Log("Login Correcto");
+                string msg = "Login correcto, bienvenido admin";
+                cambiarTexto(errorTextObj, msg);
+
+                StartCoroutine(cargarEscena("AdminMenu"));
             }
             else
             {
                 Debug.Log("error de acceso");
                 string msg = "Error de acceso, debe indicar un usuario válido";
+
                 cambiarTexto(errorTextObj, msg);
 
             }
@@ -70,6 +86,13 @@ public class loginScript : MonoBehaviour
 
     private void cambiarTexto(GameObject go, string msg)
     {
-        go.GetComponent<TMP_Text>().text = msg;
+        go.GetComponent<TMP_Text>().SetText(msg);
     }
+
+    IEnumerator cargarEscena(string scene)
+    {
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(scene);
+    }
+
 }

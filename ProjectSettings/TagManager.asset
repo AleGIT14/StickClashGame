@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - errortext
+  - canvasRegister
+  - canvasLogin
+  - row
   layers:
   - Default
   - TransparentFX
