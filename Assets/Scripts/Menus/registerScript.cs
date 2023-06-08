@@ -44,7 +44,11 @@ public class registerScript : MonoBehaviour
             if (scriptsObj.GetComponent<bdMananger>().insertarUsuario(user, pass))
             {
                 Debug.Log("Registro Correcto");
-                string msg = "Registro correcto, bienvenido " + user + " iniciando sesión";
+                string msg = "Registro correcto, bienvenido " + user + " ... iniciando sesión";
+
+                //asiganmos usuario a variable statica
+                sesion.setPlayername(user);
+                
                 cambiarTexto(msg);
 
                 StartCoroutine(cargarEscena("PlayerMenu"));
@@ -93,7 +97,7 @@ public class registerScript : MonoBehaviour
 
     IEnumerator cargarEscena(string scene)
     {
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(3);
         SceneManager.LoadScene(scene);
     }
 

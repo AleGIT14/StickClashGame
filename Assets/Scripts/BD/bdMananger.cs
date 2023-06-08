@@ -29,41 +29,74 @@ public class bdMananger : MonoBehaviour
 
     }
 
-    //terminar ?
+    //DONE
     public bool insertarUsuario(string user, string pass)
     {
-        string Query = String.Format("INSERT INTO `users` (`user_id`, `role`, `status`, `username`, `password`, `create_time`) VALUES (NULL, DEFAULT, DEFAULT, @user, @pass, DEFAULT);");
+        string query1 = String.Format("INSERT INTO `users` (`user_id`, `role`, `status`, `username`, `password`, `create_time`) VALUES (NULL, DEFAULT, DEFAULT, @user, @pass, DEFAULT);");
+        string query2 = String.Format("INSERT INTO `player_data` (`user_id`, `actualPoints`, `unlocks`) VALUES (@id_data, DEFAULT, DEFAULT);");
+        string query3 = String.Format("INSERT INTO `ranking` (`user_id`, `totalPoints`) VALUES (@id_rank, DEFAULT);");
 
-        try
+
+        string connString = connectionScript.GetComponent<ConnectionScript>().getConexion();
+
+
+        using (conn = new MySqlConnection(connString))
         {
-            string connString = connectionScript.GetComponent<ConnectionScript>().getConexion();
-            conn = new MySqlConnection(connString);
-
             conn.Open();
 
-            using (MySqlCommand cmd = new MySqlCommand(Query, conn))
-            {
-                cmd.Parameters.AddWithValue("@user", user);
-                cmd.Parameters.AddWithValue("@pass", pass);
+            MySqlTransaction transaction = conn.BeginTransaction();
 
-                cmd.ExecuteNonQuery();
+            try
+            {
+                //insert primera tabla
+                MySqlCommand cmd1 = new MySqlCommand(query1, conn);
+
+                cmd1.Parameters.AddWithValue("@user", user);
+                cmd1.Parameters.AddWithValue("@pass", pass);
+
+                cmd1.ExecuteNonQuery();
+
+                //obtenemos el id generado
+
+                long last_id = cmd1.LastInsertedId;
+
+
+                //insert segunda tabla
+                MySqlCommand cmd2 = new MySqlCommand(query2, conn);
+
+                cmd2.Parameters.AddWithValue("@id_data", last_id);
+
+                cmd2.ExecuteNonQuery();
+
+                //insert tercera tabla
+                MySqlCommand cmd3 = new MySqlCommand(query3, conn);
+
+                cmd3.Parameters.AddWithValue("@id_rank", last_id);
+
+                cmd3.ExecuteNonQuery();
+
+
+                transaction.Commit();
 
             }
+            catch (MySqlException e)
+            {
+                transaction.Rollback();
 
+                Debug.Log("Error de inserción");
+                Debug.Log(e);
 
-            conn.Close();
-
-            Debug.Log("Inserción correcta");
-
-            return true;
-
+                return false;
+            }
+            finally
+            {
+                conn.Close();
+            }
         }
-        catch (MySqlException e)
-        {
-            Debug.Log("Error de inserción");
-            Debug.Log(e);
-            return false;
-        }
+
+        Debug.Log("Inserción correcta");
+
+        return true;
     }
 
     //DONE
@@ -119,6 +152,8 @@ public class bdMananger : MonoBehaviour
                 Debug.Log("user no existe");
             }
         }
+        conn.Close();
+
         return aux;
     }
 
@@ -157,7 +192,6 @@ public class bdMananger : MonoBehaviour
             return null;
         }
     }
-
 
     //DONE
     public List<Usuario> listPlayers()
@@ -202,8 +236,54 @@ public class bdMananger : MonoBehaviour
         }
     }
 
+    //DONE
+    //Lista los usuarios con sus puntos totales de forma descendente.
+    public List<Ranking> listRanking()
+    {
+
+        string Query = String.Format("SELECT users.username, ranking.totalPoints FROM users INNER JOIN ranking ON users.user_id = ranking.user_id ORDER BY ranking.totalPoints DESC;");
+
+        List<Ranking> listRanking = new List<Ranking>();
+
+        try
+        {
+            string connString = connectionScript.GetComponent<ConnectionScript>().getConexion();
+            conn = new MySqlConnection(connString);
+
+            conn.Open();
+
+            using (MySqlCommand cmd = new MySqlCommand(Query, conn))
+            {
+                MySqlDataReader res = cmd.ExecuteReader();
+
+                while (res.Read())
+                {
+
+                    Ranking a = new Ranking(res["username"].ToString(), (int)res["totalPoints"]);
+
+                    Debug.Log(a.ToString());
+
+                    listRanking.Add(a);
+
+                }
+            }
+
+            conn.Close();
+
+            return listRanking;
+
+
+        }
+        catch (MySqlException e)
+        {
+            Debug.Log(e);
+            return null;
+        }
+    }
+
 
     //DONE
+    //Delete en Cascade configurado en la base de datos para todas las tablas
     public bool deleteUser(int id)
     {
 
@@ -273,4 +353,68 @@ public class bdMananger : MonoBehaviour
             return false;
         }
     }
+
+
+    public int obtenerPuntosActuales(string user)
+    {
+        int res;
+
+        Debug.Log("debug: + " + user);
+
+
+        string query1 = String.Format("SELECT actualPoints FROM player_data WHERE user_id IN (SELECT user_id FROM users WHERE username = @user);");
+
+        string connString = connectionScript.GetComponent<ConnectionScript>().getConexion();
+
+
+        using (conn = new MySqlConnection(connString))
+        {
+
+            conn.Open();
+
+            MySqlTransaction transaction = conn.BeginTransaction();
+
+            try
+            {
+
+                MySqlCommand cmd1 = new MySqlCommand(query1, conn);
+
+                cmd1.Parameters.AddWithValue("@user", user);
+
+                using (MySqlDataReader resCons = cmd1.ExecuteReader())
+                {
+
+                    if (resCons.Read())
+                    {
+                        res = (int)resCons["actualPoints"];
+                        Debug.Log(res);
+                    }
+                    else
+                    {
+                        res = -1;
+                    }
+                }
+
+                transaction.Commit();
+
+            }
+            catch (MySqlException e)
+            {
+                transaction.Rollback();
+
+                Debug.Log(e);
+
+                res = -1;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+
+
+        return res;
+    }
+
 }

@@ -61,6 +61,10 @@ public class loginScript : MonoBehaviour
                 string msg = "Login correcto, bienvenido " + user;
                 cambiarTexto(errorTextObj, msg);
 
+                sesion.setPlayername(user);
+
+                Debug.Log(sesion.getPlayerName());
+
                 StartCoroutine(cargarEscena("PlayerMenu"));
             } 
             else if (consultaRes == 2)

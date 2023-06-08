@@ -8,11 +8,16 @@ TagManager:
   - canvasRegister
   - canvasLogin
   - row
+  - ground
+  - playerBullet
+  - deadZone
+  - player1
+  - player2
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - 
