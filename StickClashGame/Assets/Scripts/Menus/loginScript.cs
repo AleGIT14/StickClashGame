@@ -18,7 +18,6 @@ public class loginScript : MonoBehaviour
     [SerializeField] Button btnRegister;
 
     private GameObject errorTextObj;
-    private string errorText;
 
     private string user;
     private string pass;
@@ -74,6 +73,13 @@ public class loginScript : MonoBehaviour
                 cambiarTexto(errorTextObj, msg);
 
                 StartCoroutine(cargarEscena("AdminMenu"));
+            }
+            else if ( consultaRes == 3)
+            {
+                Debug.Log("usuario suspendido");
+                string msg = "Error - El usuario se encuentra en estado suspendido";
+
+                cambiarTexto(errorTextObj, msg);
             }
             else
             {

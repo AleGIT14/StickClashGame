@@ -110,6 +110,13 @@ public class bdMananger : MonoBehaviour
         {
             if (String.Equals(user, usr.name) && String.Equals(pass, usr.pass))
             {
+                if (usr.status.Equals("suspended"))
+                {
+                    aux = 3;
+                    break;
+                }
+
+
                 if (usr.role == "player")
                 {
                     aux = 1;
@@ -177,7 +184,7 @@ public class bdMananger : MonoBehaviour
 
                 while (res.Read())
                 {
-                    Usuario a = new Usuario((int)res["user_id"], res["role"].ToString(), res["username"].ToString(), res["password"].ToString());
+                    Usuario a = new Usuario((int)res["user_id"], res["role"].ToString(), res["username"].ToString(), res["password"].ToString(), res["status"].ToString());
                     listUsers.Add(a);
                 }
             }
